@@ -47,6 +47,7 @@
 #include <QtGui/qopenglshaderprogram.h>
 
 #include <QMouseEvent>
+#include <QOpenGLFunctions_3_3_Core>
 #include <QTime>
 #include <QVector>
 
@@ -63,6 +64,8 @@
 
 using namespace std;
 using namespace c2t;
+
+
 
 class LogoRenderer: public QObject{
 
@@ -105,6 +108,8 @@ public:
 private:
 
 
+
+
     QList<Nokta> veriler;
 
 
@@ -113,7 +118,6 @@ private:
 
     QOpenGLShaderProgram program1;
 
-    void YanKesitleriOlustur(QList<Nokta> veriler, float genislik);
 
 
     vector<Point> outputTriangles;
@@ -121,6 +125,9 @@ private:
     GLdouble glX, glY, glZ;
 
 
+
+    void CizimResminiHafizayaAl();
+    void ObjeOlustur(vector<Point> outputTriangles);
 };
 #endif
 

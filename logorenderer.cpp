@@ -1,4 +1,4 @@
-/****************************************************************************
+﻿/****************************************************************************
 **
 ** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
@@ -38,6 +38,7 @@
 **
 ****************************************************************************/
 
+#include "BMP.h"
 #include "logorenderer.h"
 #include <QPainter>
 #include <QPaintEngine>
@@ -46,15 +47,33 @@
 
 #include <GL/glu.h>
 
+#include <GL/gl.h>
+
+#include <GL/freeglut.h>
+
 #include <QDebug>
 #include <QQuickItem>
 
-
+#include <math.h>
+#include <cstdlib>
+#include <iostream>
+#include <fstream>
 
 
 GLint viewport[4];
 GLdouble model_view[16];
 GLdouble projection[16];
+
+float* vertices;
+int verticesSize;
+float *textcoord;
+
+GLuint texture_id;
+
+
+
+
+
 
 
 LogoRenderer::LogoRenderer()
@@ -114,6 +133,8 @@ void LogoRenderer::initialize()
 }
 
 
+
+
 void LogoRenderer::render()
 {
     program1.bind();
@@ -137,20 +158,15 @@ void LogoRenderer::render()
     glOrtho(-KonumX - (Genislik / 2.0), -KonumX + ( Genislik / 2.0), -KonumY - (Yukseklik / 2.0), -KonumY + (Yukseklik / 2.0), -(1000 * Genislik) / 2.0, (1000 * Genislik) / 2.0);
     glViewport(0, 0, Genislik,Yukseklik);
 
-    glScaled(.5,.5,.5);
+    glScaled(1.5,1.5,1.5);
 
-    glTranslated(0,350,0);
+    glTranslated(0,120,0);
 
     glRotated(180.0,1,0.0,0.0);
 
     glPushMatrix();
 
-    UcgenCiz(outputTriangles);
 
-    //YanKesitleriOlustur(veriler,100);
-
-
-    glPopMatrix();
 
 
     glGetIntegerv(GL_VIEWPORT, viewport);
@@ -158,7 +174,35 @@ void LogoRenderer::render()
     glGetDoublev(GL_MODELVIEW_MATRIX, model_view);
 
     glGetDoublev(GL_PROJECTION_MATRIX, projection);
+
+
+
+
+
+
+    glBindTexture(GL_TEXTURE_2D, texture_id);
+
+    glEnableClientState( GL_VERTEX_ARRAY );
+    glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+
+
+    glVertexPointer( 3, GL_FLOAT, 0, vertices );
+    glTexCoordPointer( 2, GL_FLOAT, 0, textcoord );
+
+    glDrawArrays( GL_TRIANGLES, 0, verticesSize);
+
+
+
+    glDisableClientState(GL_NORMAL_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    glPopMatrix();
+
+
+
 }
+
 
 
 
@@ -172,58 +216,127 @@ void LogoRenderer::VerileriDoldur()
 
     outputTriangles = ucgenler.Ucgenle(veriler);
 
+
+    ObjeOlustur(outputTriangles);
+
+    CizimResminiHafizayaAl();
+
 }
 
-void LogoRenderer::YanKesitleriOlustur(QList<Nokta> veriler,float genislik)
+
+
+
+
+void LogoRenderer::ObjeOlustur(vector<Point> outputTriangles)
 {
-    glColor3d(1,0.4,0.5);
+
+    vertices= new float[9*outputTriangles.size()]; //3 coordiantes per vertex
+    textcoord= new float[6*outputTriangles.size()]; //3 coordiantes per vertex
 
 
-    for(int i=0;i<veriler.size()-1;i++)
+    float maxX = outputTriangles[0].x;
+    float maxY = outputTriangles[0].y;
+    float minX = outputTriangles[0].x;
+    float minY = outputTriangles[0].y;
+
+    for(int i=0;i<outputTriangles.size()/3;i++)
     {
-        glBegin(GL_QUADS);
-        glVertex3d(veriler[i].x,veriler[i].y,veriler[i].z);
-        glVertex3d(veriler[i+1].x,veriler[i+1].y,veriler[i].z);
-        glVertex3d(veriler[i+1].x,veriler[i+1].y,veriler[i].z + genislik);
-        glVertex3d(veriler[i].x,veriler[i].y,veriler[i].z + genislik);
-        glEnd();
+        vertices[(i*9)+0] = outputTriangles[3*i].x;
+        vertices[(i*9)+1] = outputTriangles[3*i].y;
+        vertices[(i*9)+2] = 100;
+
+        vertices[(i*9)+3] = outputTriangles[3*i+1].x;
+        vertices[(i*9)+4] = outputTriangles[3*i+1].y;
+        vertices[(i*9)+5] = 100;
+
+        vertices[(i*9)+6] = outputTriangles[3*i+2].x;
+        vertices[(i*9)+7] = outputTriangles[3*i+2].y;
+        vertices[(i*9)+8] = 100;
+
+       minX = std::min(std::min(std::min(outputTriangles[3*i].x,outputTriangles[3*i + 1].x) ,outputTriangles[3*i + 2].x),minX);
+       minY = std::min(std::min(std::min(outputTriangles[3*i].y,outputTriangles[3*i + 1].y) ,outputTriangles[3*i + 2].y),minY);
+       maxX = std::max(std::max(std::max(outputTriangles[3*i].x,outputTriangles[3*i + 1].x) ,outputTriangles[3*i + 2].x),maxX);
+       maxY = std::max(std::max(std::max(outputTriangles[3*i].y,outputTriangles[3*i + 1].y) ,outputTriangles[3*i + 2].y),maxY);
+
 
     }
 
+
+
+    for(int i=0;i<outputTriangles.size()/3;i++)
+    {
+        textcoord[(i*6)+0] = (outputTriangles[3*i].x - minX) / (maxX -minX);
+        textcoord[(i*6)+1] = (outputTriangles[3*i].y - minY) / (maxY -minY);
+
+
+        textcoord[(i*6)+2] = (outputTriangles[3*i+1].x- minX) / (maxX -minX);
+        textcoord[(i*6)+3] = (outputTriangles[3*i+1].y- minY) / (maxY -minY);
+
+
+        textcoord[(i*6)+4] = (outputTriangles[3*i+2].x- minX) / (maxX -minX);
+        textcoord[(i*6)+5] = (outputTriangles[3*i+2].y- minY) / (maxY -minY);
+
+    }
+
+
+
+    verticesSize = outputTriangles.size();
+
 }
 
-
-
-void LogoRenderer::UcgenCiz(vector<Point> outputTriangles)
+void LogoRenderer::CizimResminiHafizayaAl()
 {
-    glColor3d(1,0,0);
+    BMP bmp ("bakir.bmp");
 
 
-    for(int i=0;i<outputTriangles.size();i=i+3)
-    {
-        glBegin(GL_TRIANGLES);
-        glVertex3d(outputTriangles[i].x,outputTriangles[i].y,0);
-        glVertex3d(outputTriangles[i+1].x,outputTriangles[i+1].y,0);
-        glVertex3d(outputTriangles[i+2].x,outputTriangles[i+2].y,0);
-        glEnd();
+    glEnable(GL_TEXTURE_2D);
+
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
+
+
+    GLubyte resimDatasi[bmp.bmp_info_header.height][bmp.bmp_info_header.width][4];
+
+
+
+    int boyut = bmp.bmp_info_header.width * bmp.bmp_info_header.height * 3;
+
+
+
+    int i, j, c = 0;
+
+    for (i = 0; i < bmp.bmp_info_header.height; i++) {
+       for (j = 0; j < bmp.bmp_info_header.width; j++) {
+
+          resimDatasi[i][j][2] = (GLubyte) bmp.data[0 + c + (i* bmp.bmp_info_header.width)+ j];
+          resimDatasi[i][j][1] = (GLubyte) bmp.data[1 + c + (i* bmp.bmp_info_header.width)+ j];
+          resimDatasi[i][j][0] = (GLubyte) bmp.data[2 + c + (i* bmp.bmp_info_header.width)+ j];
+          resimDatasi[i][j][3] = (GLubyte) 255;
+          c = c+2;
+       }
+
+
 
     }
 
-    glColor3d(1,1,0);
 
+    glActiveTexture(GL_TEXTURE0);
 
-    for(int i=0;i<outputTriangles.size();i=i+3)
-    {
-        glBegin(GL_TRIANGLES);
-        glVertex3d(outputTriangles[i].x,outputTriangles[i].y,100);
-        glVertex3d(outputTriangles[i+1].x,outputTriangles[i+1].y,100);
-        glVertex3d(outputTriangles[i+2].x,outputTriangles[i+2].y,100);
-        glEnd();
+    glGenTextures(1, &texture_id);
+    glBindTexture(GL_TEXTURE_2D, texture_id);
 
-    }
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 
+    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
 
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, bmp.bmp_info_header.width, bmp.bmp_info_header.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, resimDatasi);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
+
 
 
 

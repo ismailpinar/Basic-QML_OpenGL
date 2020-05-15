@@ -1,6 +1,7 @@
 QT += qml quick
 
 HEADERS += fboinsgrenderer.h \
+    BMP.h \
     Nokta.h \
     clip2tri/clip2tri.h \
     clipper/clipper.hpp \
@@ -37,3 +38,5 @@ INSTALLS += target
 
 OTHER_FILES += \
     main.qml
+
+DISTFILES +=
