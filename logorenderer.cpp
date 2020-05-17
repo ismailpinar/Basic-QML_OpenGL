@@ -69,9 +69,16 @@ int verticesSize;
 float *textcoord;
 float *normals;
 
-
 GLuint texture_id;
 
+
+float konumX = 0;
+float KonumY = 0;
+
+float donmeAcisiY;
+float donmeAcisiX;
+float donmeAcisiZ = 180;
+float mercek = 1;
 
 
 
@@ -96,8 +103,8 @@ void LogoRenderer::initialize()
 {
 
 
+    tiklananGLNoktasi();
     VerileriDoldur();
-
 
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
@@ -136,13 +143,7 @@ void LogoRenderer::initialize()
 
 
 
-float konumX = 0;
-float KonumY = 0;
 
-float donmeAcisiY;
-float donmeAcisiX;
-float donmeAcisiZ = 180;
-float mercek = 1;
 
 void LogoRenderer::render()
 {
@@ -177,8 +178,6 @@ void LogoRenderer::render()
 
 
     glPushMatrix();
-
-
 
 
     glGetIntegerv(GL_VIEWPORT, viewport);
@@ -390,9 +389,13 @@ QStringList LogoRenderer::tiklananGLNoktasi()
 
 
 
-
-   return nokta;
+    return nokta;
 }
+
+
+
+
+
 
 void LogoRenderer::tiklananPiksel(int x ,int y)
 {
@@ -406,16 +409,12 @@ void LogoRenderer::onBasildi(int x, int y)
     hareketeBaslamaNoktasi.x = x;
     hareketeBaslamaNoktasi.y = y;
 
-    qDebug()<<"PressX = "<< x<< "PressY = "<< y;
 }
 
 void LogoRenderer::onBirakildi(int x, int y)
 {
     hareketeBaslamaNoktasi.x = hareketiBitirmeNoktasi.x;
     hareketeBaslamaNoktasi.y = hareketiBitirmeNoktasi.y;
-
-    qDebug()<<"ReleaseX = "<< x<< "ReleaseY = "<< y;
-
 
 
 }
@@ -437,15 +436,11 @@ void LogoRenderer::onSurukleniyor(int x, int y)
             KonumY = -((-y + hareketeBaslamaNoktasi.y) - KonumY);
             konumX = (-(-x + hareketeBaslamaNoktasi.x) + ( konumX));
 
-            qDebug()<<"K ="<<  konumX;
-
         }
 
         hareketeBaslamaNoktasi.x = x;
         hareketeBaslamaNoktasi.y = y;
 
-
-        //qDebug()<<"MoveX = "<< x<< "MoveY = "<< y;
 }
 
 void LogoRenderer::onOynatBasildi(int durum)
@@ -462,8 +457,9 @@ void LogoRenderer::onOynatBasildi(int durum)
 
 void LogoRenderer::onMercekDegisti(double gelenMercek)
 {
-     mercek = gelenMercek;
+    mercek = gelenMercek;
 }
+
 
 
 

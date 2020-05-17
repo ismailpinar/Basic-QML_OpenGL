@@ -19,9 +19,10 @@ HEADERS += fboinsgrenderer.h \
     poly2tri/sweep/sweep_context.h \
     ucgenleme.h \
     veridoldur.h
-SOURCES += fboinsgrenderer.cpp main.cpp \
+SOURCES += fboinsgrenderer.cpp \
     clip2tri/clip2tri.cpp \
     clipper/clipper.cpp \
+    frmCizim.cpp \
     logorenderer.cpp \
     poly2tri/common/shapes.cc \
     poly2tri/sweep/advancing_front.cc \
@@ -40,7 +41,3 @@ RESOURCES += textureinsgnode.qrc
 target.path = $$[QT_INSTALL_EXAMPLES]/quick/scenegraph/textureinsgnode
 INSTALLS += target
 
-OTHER_FILES += \
-    main.qml
-
-DISTFILES +=

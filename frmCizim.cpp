@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the examples of the Qt Toolkit.
 **
@@ -17,8 +17,8 @@
 **     notice, this list of conditions and the following disclaimer in
 **     the documentation and/or other materials provided with the
 **     distribution.
-**   * Neither the name of Digia Plc and its Subsidiary(-ies) nor the names
-**     of its contributors may be used to endorse or promote products derived
+**   * Neither the name of The Qt Company Ltd nor the names of its
+**     contributors may be used to endorse or promote products derived
 **     from this software without specific prior written permission.
 **
 **
@@ -38,112 +38,57 @@
 **
 ****************************************************************************/
 
-#ifndef LOGORENDERER_H
-#define LOGORENDERER_H
+#include <QGuiApplication>
+
+#include <QtQuick/QQuickView>
+
+#include <QQmlEngine>
+#include <QQmlContext>
+
+#include "fboinsgrenderer.h"
+#include "logorenderer.h"
 
 
-#include <QtGui/qvector3d.h>
-#include <QtGui/qmatrix4x4.h>
-#include <QtGui/qopenglshaderprogram.h>
+int main(int argc, char **argv)
+{
+    QGuiApplication app(argc, argv);
 
-#include <QMouseEvent>
-#include <QOpenGLFunctions_3_3_Core>
-#include <QTime>
-#include <QVector>
-
-#include <iostream>
-#include <cstdio>
-#include <math.h>
-#include <Nokta.h>
-#include <veridoldur.h>
-
-#include <QObject>
-
-
-#include <clip2tri/clip2tri.h>
-
-using namespace std;
-using namespace c2t;
+    qmlRegisterType<FboInSGRenderer>("SceneGraphRendering", 1, 0, "Renderer");
 
 
 
-class LogoRenderer: public QObject{
 
-    Q_OBJECT
-
+    QQuickView view;
 
 
-public slots:
-
-      void tiklananPiksel(int msg1,int msg);
-      void onBasildi(int msg1,int msg);
-      void onBirakildi(int msg1,int msg);
-      void onSurukleniyor(int msg1,int msg);
-      void onOynatBasildi(int durum);
-      void onMercekDegisti(double mercek);
+    LogoRenderer msg;
 
 
-public:
+    view.setResizeMode(QQuickView::SizeRootObjectToView);
+    view.engine()->rootContext()->setContextProperty("msg", &msg);
 
-     Q_INVOKABLE QStringList tiklananGLNoktasi();
+
+    view.setSource(QUrl("qrc:/frmCizim.qml"));
+
+    QObject *item = view.rootObject();
+
+    QObject::connect(item, SIGNAL(tiklananNokta(int,int)),&msg, SLOT(tiklananPiksel(int,int)));
+    QObject::connect(item, SIGNAL(onBasildi(int,int))     ,&msg, SLOT(onBasildi(int,int)));
+    QObject::connect(item, SIGNAL(onBirakildi(int,int))   ,&msg, SLOT(onBirakildi(int,int)));
+    QObject::connect(item, SIGNAL(onSurukleniyor(int,int)),&msg, SLOT(onSurukleniyor(int,int)));
+    QObject::connect(item, SIGNAL(onOynatBasildi(int)),    &msg, SLOT(onOynatBasildi(int)));
+    QObject::connect(item, SIGNAL(onMercekDegisti(double)),&msg, SLOT(onMercekDegisti(double)));
 
 
 
 
 
-    ~LogoRenderer();
-    LogoRenderer();
-
-    void render();
-    void initialize();
-
-    int Genislik = 700;
-    int Yukseklik = 700;
-
-
-    vector<c2t::Point> Ucgenle();
-
-
-
-    vector<vector<c2t::Point>> ucgenlenecekVeri;
-
-
-
-
-private:
-
-
-
-
-    QList<Nokta> veriler;
-
-
-    void VerileriDoldur();
-    void UcgenCiz(vector<c2t::Point>);
-
-    QOpenGLShaderProgram program1;
-
-
-
-    vector<Point> outputTriangles;
-
-    GLdouble glX, glY, glZ = 10;
 
 
 
 
 
-    void CizimResminiHafizayaAl();
-    void ObjeOlustur(vector<Point> outputTriangles);
+    view.show();
 
-    void Isiklandirma(float isikPozisyonu[]);
-
-    Point hareketeBaslamaNoktasi;
-    Point hareketiBitirmeNoktasi;
-
-    bool CizimiOynat;
-
-
-};
-#endif
-
+    return app.exec();
+}
