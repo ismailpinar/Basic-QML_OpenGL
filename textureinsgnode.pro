@@ -1,3 +1,7 @@
+#Author: İsmail PINAR
+#Date:   17.05.2020
+#info: 	 i.pinar6616@outlook.com
+
 QT += qml quick
 
 HEADERS += fboinsgrenderer.h \
