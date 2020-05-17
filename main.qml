@@ -50,16 +50,32 @@ Item {
 
     signal tiklananNokta(msg: int,msg: int);
 
+    signal onOynatBasildi(msg: int);
+
+    signal onMercekDegisti(msg: double);
 
 
 
-    property int tiklananPikselX
-    property int tiklananPikselY
+    signal onBasildi(msg: int,msg: int);
+    signal onBirakildi(msg: int,msg: int);
+    signal onSurukleniyor(msg: int,msg: int);
+
+
+
+
+    property bool oynat: true
+
+
+
 
 
 
     Rectangle {
         id: rectangle
+        anchors.rightMargin: 0
+        anchors.bottomMargin: 0
+        anchors.leftMargin: 0
+        anchors.topMargin: 0
         anchors.fill: parent
 
 
@@ -98,23 +114,38 @@ Item {
 
             }
             MouseArea{
+                anchors.rightMargin: 0
+                anchors.bottomMargin: 0
+                anchors.leftMargin: 0
+                anchors.topMargin: 0
+                hoverEnabled: true
                 anchors.fill: parent
                 onClicked:
                 {
-                    tiklananPikselX = mouse.x
-                    tiklananPikselY = mouse.y;
 
-                    tiklananNokta(tiklananPikselX,tiklananPikselY);
+
+                    tiklananNokta(mouse.x,mouse.y);
 
                     var x = msg.tiklananGLNoktasi();
 
                     textPiksel.text ="X = " + x[0] +"  Y = " + x[1];
 
-                    textGL.text ="X = " + tiklananPikselX +"  Y = " + tiklananPikselY;
+                    textGL.text ="X = " + mouse.x +"  Y = " + mouse.y;
 
+                }
 
+                onPressed:
+                {
+                    onBasildi(mouse.x, mouse.y);
+                }
 
-
+                onPositionChanged:
+                {
+                   onSurukleniyor(mouse.x, mouse.y);
+                }
+                onReleased:
+                {
+                     onBirakildi(mouse.x, mouse.y);
                 }
 
             }
@@ -208,10 +239,104 @@ Item {
             id: element1
             x: 787
             y: 227
-            text: qsTr("Piiksel Noktası")
+            text: qsTr("Piksel Noktası")
             verticalAlignment: Text.AlignVCenter
             font.pixelSize: 13
             horizontalAlignment: Text.AlignHCenter
+        }
+
+        Rectangle {
+            id: rectangle3
+            x: 893
+            y: 343
+            width: 80
+            height: 80
+            color: "#c34d4d"
+
+            Text {
+                id: txtOynat
+                x: 0
+                y: 0
+                color: "#eee2e2"
+                text: qsTr("Oynat")
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
+                font.bold: true
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
+                font.pixelSize: 18
+
+            }
+
+            MouseArea
+            {
+                anchors.fill: parent
+                onClicked:
+                {
+                    oynat = !oynat;
+
+                    if(oynat)
+                    {
+                        txtOynat.text = "OYNAT";
+                        onOynatBasildi(1);
+                    }
+                    else
+                    {
+                        txtOynat.text = "YÜRÜT";
+                        onOynatBasildi(0);
+                    }
+
+
+                }
+            }
+
+        }
+
+
+        Rectangle {
+            id: rectangle4
+            x: 787
+            y: 450
+            width: 200
+            height: 40
+            color: "#cceee989"
+            border.width: 5
+
+            TextEdit {
+                id: textMercek
+                x: 0
+                y: 0
+
+                width: parent.width
+                height: parent.height
+                color: "#0a0a0a"
+                text:"1.5"
+                mouseSelectionMode: TextInput.SelectWords
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
+                font.pixelSize: 12
+
+                onTextChanged:
+                {
+
+                    onMercekDegisti(textMercek.text);
+                   //tiklananNokta(textEdit.text,4);
+
+
+                }
+
+            }
+
+        }
+
+        Text {
+            id: txtMercek
+            x: 787
+            y: 426
+            text: qsTr("Mercek")
+            verticalAlignment: Text.AlignVCenter
+            horizontalAlignment: Text.AlignHCenter
+            font.pixelSize: 13
         }
 
 

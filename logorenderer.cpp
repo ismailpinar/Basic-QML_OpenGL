@@ -67,6 +67,8 @@ GLdouble projection[16];
 float* vertices;
 int verticesSize;
 float *textcoord;
+float *normals;
+
 
 GLuint texture_id;
 
@@ -134,6 +136,13 @@ void LogoRenderer::initialize()
 
 
 
+float konumX = 0;
+float KonumY = 0;
+
+float donmeAcisiY;
+float donmeAcisiX;
+float donmeAcisiZ = 180;
+float mercek = 1;
 
 void LogoRenderer::render()
 {
@@ -155,14 +164,17 @@ void LogoRenderer::render()
 
 
 
-    glOrtho(-KonumX - (Genislik / 2.0), -KonumX + ( Genislik / 2.0), -KonumY - (Yukseklik / 2.0), -KonumY + (Yukseklik / 2.0), -(1000 * Genislik) / 2.0, (1000 * Genislik) / 2.0);
+    glOrtho(-konumX - (Genislik / 2.0), - konumX + ( Genislik / 2.0), -KonumY - (Yukseklik / 2.0), -KonumY + (Yukseklik / 2.0), -(1000 * Genislik) / 2.0, (1000 * Genislik) / 2.0);
     glViewport(0, 0, Genislik,Yukseklik);
 
-    glScaled(1.5,1.5,1.5);
+    glScaled(mercek,mercek,mercek);
 
-    glTranslated(0,120,0);
 
-    glRotated(180.0,1,0.0,0.0);
+    glRotatef(donmeAcisiX, 1, 0, 0);
+    glRotatef(donmeAcisiY, 0, 1, 0);
+    glRotatef(donmeAcisiZ, 0, 0, 1);
+
+
 
     glPushMatrix();
 
@@ -176,18 +188,24 @@ void LogoRenderer::render()
     glGetDoublev(GL_PROJECTION_MATRIX, projection);
 
 
+    float isik[3] = {-900,-500,0};
+
+    Isiklandirma(isik);
 
 
 
+
+    glEnableClientState( GL_VERTEX_ARRAY );
+    glEnableClientState( GL_NORMAL_ARRAY );
+    glEnableClientState( GL_TEXTURE_COORD_ARRAY);
 
     glBindTexture(GL_TEXTURE_2D, texture_id);
 
-    glEnableClientState( GL_VERTEX_ARRAY );
-    glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 
-
-    glVertexPointer( 3, GL_FLOAT, 0, vertices );
     glTexCoordPointer( 2, GL_FLOAT, 0, textcoord );
+    glVertexPointer( 3, GL_FLOAT, 0, vertices );
+    glNormalPointer(GL_FLOAT, 0, normals);
+
 
     glDrawArrays( GL_TRIANGLES, 0, verticesSize);
 
@@ -217,6 +235,10 @@ void LogoRenderer::VerileriDoldur()
     outputTriangles = ucgenler.Ucgenle(veriler);
 
 
+
+
+
+
     ObjeOlustur(outputTriangles);
 
     CizimResminiHafizayaAl();
@@ -231,6 +253,7 @@ void LogoRenderer::ObjeOlustur(vector<Point> outputTriangles)
 {
 
     vertices= new float[9*outputTriangles.size()]; //3 coordiantes per vertex
+    normals= new float[9*outputTriangles.size()]; //3 coordiantes per vertex
     textcoord= new float[6*outputTriangles.size()]; //3 coordiantes per vertex
 
 
@@ -277,6 +300,24 @@ void LogoRenderer::ObjeOlustur(vector<Point> outputTriangles)
         textcoord[(i*6)+5] = (outputTriangles[3*i+2].y- minY) / (maxY -minY);
 
     }
+
+
+    for(int i=0;i<outputTriangles.size()/3;i++)
+    {
+        normals[(i*9)+0] = 1;
+        normals[(i*9)+1] = 0;
+        normals[(i*9)+2] = 0;
+
+        normals[(i*9)+3] = 1;
+        normals[(i*9)+4] = 0;
+        normals[(i*9)+5] = 0;
+
+        normals[(i*9)+6] = 1;
+        normals[(i*9)+7] = 0;
+        normals[(i*9)+8] = 0;
+
+    }
+
 
 
 
@@ -334,7 +375,7 @@ void LogoRenderer::CizimResminiHafizayaAl()
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, bmp.bmp_info_header.width, bmp.bmp_info_header.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, resimDatasi);
 
-    glBindTexture(GL_TEXTURE_2D, 0);
+   // glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 
@@ -348,6 +389,8 @@ QStringList LogoRenderer::tiklananGLNoktasi()
     nokta.append(QString::number(glY));
 
 
+
+
    return nokta;
 }
 
@@ -357,7 +400,158 @@ void LogoRenderer::tiklananPiksel(int x ,int y)
 
 }
 
+void LogoRenderer::onBasildi(int x, int y)
+{
 
+    hareketeBaslamaNoktasi.x = x;
+    hareketeBaslamaNoktasi.y = y;
+
+    qDebug()<<"PressX = "<< x<< "PressY = "<< y;
+}
+
+void LogoRenderer::onBirakildi(int x, int y)
+{
+    hareketeBaslamaNoktasi.x = hareketiBitirmeNoktasi.x;
+    hareketeBaslamaNoktasi.y = hareketiBitirmeNoktasi.y;
+
+    qDebug()<<"ReleaseX = "<< x<< "ReleaseY = "<< y;
+
+
+
+}
+
+void LogoRenderer::onSurukleniyor(int x, int y)
+{
+
+
+    if (((hareketeBaslamaNoktasi.x) == hareketiBitirmeNoktasi.x)&& (hareketeBaslamaNoktasi.y == hareketiBitirmeNoktasi.y)) { return; }
+
+        if (!CizimiOynat)
+        {
+            donmeAcisiY = (x - hareketeBaslamaNoktasi.x) + donmeAcisiY;
+            donmeAcisiX = (y - hareketeBaslamaNoktasi.y) + donmeAcisiX;
+
+        }
+        else
+        {
+            KonumY = -((-y + hareketeBaslamaNoktasi.y) - KonumY);
+            konumX = (-(-x + hareketeBaslamaNoktasi.x) + ( konumX));
+
+            qDebug()<<"K ="<<  konumX;
+
+        }
+
+        hareketeBaslamaNoktasi.x = x;
+        hareketeBaslamaNoktasi.y = y;
+
+
+        //qDebug()<<"MoveX = "<< x<< "MoveY = "<< y;
+}
+
+void LogoRenderer::onOynatBasildi(int durum)
+{
+    if(durum == 1)
+    {
+        CizimiOynat = true;
+    }
+    else if(durum == 0)
+    {
+        CizimiOynat = false;
+    }
+}
+
+void LogoRenderer::onMercekDegisti(double gelenMercek)
+{
+     mercek = gelenMercek;
+}
+
+
+
+
+void LogoRenderer::Isiklandirma(float isikPozisyonu[])
+{
+
+
+    glEnable(GL_COLOR_MATERIAL);
+    glEnable(GL_LIGHTING);
+    glEnable(GL_NORMALIZE);
+
+    //Işık için bir slot aç
+    glEnable(GL_LIGHT0);
+
+
+
+    GLfloat lmKa[] =  { 0.1f, 0.1f, 0.1f, 1.0f };
+
+
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lmKa);
+    glLightModelf(GL_LIGHT_MODEL_LOCAL_VIEWER, 1.0f);
+    glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 0.0f);
+
+    // -------------------------------------------
+    // Spotlight Attenuation
+
+
+    GLfloat spot_direction[] = { signbit(isikPozisyonu[0])* -1, signbit(isikPozisyonu[1]) * -1, signbit(isikPozisyonu[2]) * 1 };
+    GLfloat spot_exponent = 30;
+    GLfloat spot_cutoff = 180;
+
+    glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, spot_direction);
+    glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, spot_exponent);
+    glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, spot_cutoff);
+
+    float Kc = 1.0f;
+    float Kl = 0.0f;
+    float Kq = 0.0f;
+
+    glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, Kc);
+    glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, Kl);
+    glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, Kq);
+
+    // Işık Özellikleri
+    float ambientProperties2[4]  = { 0.5f, 0.5f, 0.5f, 1.0f };
+    float diffuseProperties2[4]  = { 0.8f, 0.8f, 0.8f, 1.0f };
+    float specularProperties2[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+
+
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseProperties2);
+    glLightfv(GL_LIGHT0, GL_POSITION, isikPozisyonu);
+    glLightfv(GL_LIGHT0, GL_AMBIENT, ambientProperties2);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, specularProperties2);
+
+    // Malzeme Özellikleri
+    float MatAmbient[4] = { 0.20f, 0.20f, 0.20f, 1.0f };
+    float MatDiffuse[4]  = { 0.69f, 0.8f, 0.69f, 1.0f };
+    float MatSpecular[4]  = { .94f, .94f, .94f, 1.0f };
+
+    float MatShininess[1]  = { 10 };
+    float MatEmission[4]  = { 0.05f, 0.05f, 0.05f, 1.0f };
+
+    glMaterialfv(GL_FRONT, GL_AMBIENT, MatAmbient);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, MatDiffuse);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, MatSpecular);
+    glMaterialfv(GL_FRONT, GL_SHININESS, MatShininess);
+    glMaterialfv(GL_FRONT, GL_EMISSION, MatEmission);
+
+
+
+    GLfloat diffuseMaterial[4] = { 0.65, 0.65, 0.65, 1.0 };
+
+    GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+    GLfloat light_position[] = {0.5, 1.0, 1.0, 0.0 };
+    glShadeModel (GL_SMOOTH);
+    glEnable(GL_DEPTH_TEST);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuseMaterial);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+
+
+    glColorMaterial(GL_FRONT, GL_SPECULAR);
+
+
+
+}
 
 
 

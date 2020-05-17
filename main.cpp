@@ -74,6 +74,18 @@ int main(int argc, char **argv)
     QObject::connect(item, SIGNAL(tiklananNokta(int,int)),&msg, SLOT(tiklananPiksel(int,int)));
 
 
+    QObject::connect(item, SIGNAL(onBasildi(int,int))     ,&msg, SLOT(onBasildi(int,int)));
+    QObject::connect(item, SIGNAL(onBirakildi(int,int))   ,&msg, SLOT(onBirakildi(int,int)));
+    QObject::connect(item, SIGNAL(onSurukleniyor(int,int)),&msg, SLOT(onSurukleniyor(int,int)));
+    QObject::connect(item, SIGNAL(onOynatBasildi(int)),    &msg, SLOT(onOynatBasildi(int)));
+
+    QObject::connect(item, SIGNAL(onMercekDegisti(double)),&msg, SLOT(onMercekDegisti(double)));
+
+
+
+
+
+
     view.show();
 
     return app.exec();

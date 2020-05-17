@@ -76,6 +76,13 @@ class LogoRenderer: public QObject{
 public slots:
 
       void tiklananPiksel(int msg1,int msg);
+      void onBasildi(int msg1,int msg);
+      void onBirakildi(int msg1,int msg);
+      void onSurukleniyor(int msg1,int msg);
+      void onOynatBasildi(int durum);
+      void onMercekDegisti(double mercek);
+
+
 
 
 
@@ -93,8 +100,7 @@ public:
 
     int Genislik = 700;
     int Yukseklik = 700;
-    float KonumX = 0;
-    float KonumY = 0;
+
 
     vector<c2t::Point> Ucgenle();
 
@@ -126,8 +132,19 @@ private:
 
 
 
+
+
     void CizimResminiHafizayaAl();
     void ObjeOlustur(vector<Point> outputTriangles);
+
+    void Isiklandirma(float isikPozisyonu[]);
+
+    Point hareketeBaslamaNoktasi;
+    Point hareketiBitirmeNoktasi;
+
+    bool CizimiOynat;
+
+
 };
 #endif
 
