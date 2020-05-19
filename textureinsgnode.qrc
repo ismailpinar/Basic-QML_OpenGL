@@ -2,5 +2,6 @@
     <qresource prefix="/">
         <file>frmCizim.qml</file>
         <file>CizimPenceresi.qml</file>
+        <file>frmUCizim.qml</file>
     </qresource>
 </RCC>

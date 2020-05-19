@@ -73,7 +73,7 @@ GLuint texture_id;
 
 
 float konumX = 0;
-float KonumY = 0;
+float konumY = 0;
 
 float donmeAcisiY;
 float donmeAcisiX;
@@ -164,7 +164,7 @@ void LogoRenderer::render()
 
 
 
-    glOrtho(-konumX - (Genislik / 2.0), - konumX + ( Genislik / 2.0), -KonumY - (Yukseklik / 2.0), -KonumY + (Yukseklik / 2.0), -(1000 * Genislik) / 2.0, (1000 * Genislik) / 2.0);
+    glOrtho(-konumX - (Genislik / 2.0), - konumX + ( Genislik / 2.0), -konumY - (Yukseklik / 2.0), -konumY + (Yukseklik / 2.0), -(1000 * Genislik) / 2.0, (1000 * Genislik) / 2.0);
     glViewport(0, 0, Genislik,Yukseklik);
 
     glScaled(mercek,mercek,mercek);
@@ -432,7 +432,7 @@ void LogoRenderer::onSurukleniyor(int x, int y)
         }
         else
         {
-            KonumY = -((-y + hareketeBaslamaNoktasi.y) - KonumY);
+            konumY = -((-y + hareketeBaslamaNoktasi.y) - konumY);
             konumX = (-(-x + hareketeBaslamaNoktasi.x) + ( konumX));
 
         }

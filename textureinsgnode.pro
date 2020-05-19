@@ -7,8 +7,10 @@ QT += qml quick
 HEADERS += fboinsgrenderer.h \
     BMP.h \
     Nokta.h \
+    cizimislemi.h \
     clip2tri/clip2tri.h \
     clipper/clipper.hpp \
+    glkaynak.h \
     logorenderer.h \
     poly2tri/common/shapes.h \
     poly2tri/common/utils.h \
@@ -20,9 +22,11 @@ HEADERS += fboinsgrenderer.h \
     ucgenleme.h \
     veridoldur.h
 SOURCES += fboinsgrenderer.cpp \
+    cizimislemi.cpp \
     clip2tri/clip2tri.cpp \
     clipper/clipper.cpp \
     frmCizim.cpp \
+    glkaynak.cpp \
     logorenderer.cpp \
     poly2tri/common/shapes.cc \
     poly2tri/sweep/advancing_front.cc \

@@ -8,6 +8,8 @@ import SceneGraphRendering 1.0
 Item {
 
 
+    x:30
+    y:30
 
 
     property bool oynat: true
@@ -34,12 +36,7 @@ Item {
         Renderer {
             id: renderer
             anchors.fill: parent
-            anchors.top: parent.top
-            anchors.left: parent.left
 
-            //anchors.fill: parent
-            anchors.topMargin:  30
-            anchors.leftMargin:  30
 
             Text {
                 id: tH
