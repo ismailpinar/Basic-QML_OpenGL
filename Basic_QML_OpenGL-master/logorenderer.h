@@ -137,6 +137,8 @@ private:
     void ObjeOlustur(vector<Point> outputTriangles);
 
     void Isiklandirma(float isikPozisyonu[]);
+    void Isiklandirma2(float isikPozisyonu[]);
+
 
     Point hareketeBaslamaNoktasi;
     Point hareketiBitirmeNoktasi;

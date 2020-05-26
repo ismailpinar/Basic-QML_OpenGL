@@ -77,7 +77,7 @@ float konumY = 0;
 
 float donmeAcisiY;
 float donmeAcisiX;
-float donmeAcisiZ = 180;
+float donmeAcisiZ;
 float mercek = 1;
 
 
@@ -186,9 +186,14 @@ void LogoRenderer::render()
     glGetDoublev(GL_PROJECTION_MATRIX, projection);
 
 
-    float isik[3] = {-900,-500,0};
+    float isik[3] = {-0,500,-0};
 
     Isiklandirma(isik);
+
+    isik[0] = 500;   isik[1] = -0;   isik[2] = 0;
+
+    Isiklandirma2(isik);
+
 
 
 
@@ -198,6 +203,7 @@ void LogoRenderer::render()
     glEnableClientState( GL_TEXTURE_COORD_ARRAY);
 
     glBindTexture(GL_TEXTURE_2D, texture_id);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
 
     glTexCoordPointer( 2, GL_FLOAT, 0, textcoord );
@@ -226,18 +232,37 @@ void LogoRenderer::VerileriDoldur()
 {
     veriDoldur veri;
 
-    veriler = veri.Doldur();
+    //veriler = veri.Doldur();
 
     Ucgenleme ucgenler;
 
+
+    Nokta n;
+    n.x = -100;
+    n.y = -100;
+    n.z = -100;
+
+    veriler.append(n);
+    n.x = 100;
+    n.y = -100;
+    n.z = -100;
+    veriler.append(n);
+    n.x = 100;
+    n.y = 100;
+    n.z = -100;
+    veriler.append(n);
+    n.x = -100;
+    n.y = 100;
+    n.z = -100;
+    veriler.append(n);
+
+
+
+
     outputTriangles = ucgenler.Ucgenle(veriler);
 
-
-
-
-
-
     ObjeOlustur(outputTriangles);
+
 
     CizimResminiHafizayaAl();
 
@@ -246,13 +271,12 @@ void LogoRenderer::VerileriDoldur()
 
 
 
-
 void LogoRenderer::ObjeOlustur(vector<Point> outputTriangles)
 {
 
-    vertices= new float[9*outputTriangles.size()]; //3 coordiantes per vertex
-    normals= new float[9*outputTriangles.size()]; //3 coordiantes per vertex
-    textcoord= new float[6*outputTriangles.size()]; //3 coordiantes per vertex
+    vertices= new float[9*outputTriangles.size()*6]; //3 coordiantes per vertex
+    normals= new float[9*outputTriangles.size()*6]; //3 coordiantes per vertex
+    textcoord= new float[6*outputTriangles.size()*6]; //3 coordiantes per vertex
 
 
     float maxX = outputTriangles[0].x;
@@ -280,7 +304,128 @@ void LogoRenderer::ObjeOlustur(vector<Point> outputTriangles)
        maxY = std::max(std::max(std::max(outputTriangles[3*i].y,outputTriangles[3*i + 1].y) ,outputTriangles[3*i + 2].y),maxY);
 
 
+
+
     }
+
+    for(int i=0;i<outputTriangles.size()/3;i++)
+    {
+        vertices[(i*9)+0+ 3*outputTriangles.size()] = outputTriangles[3*i].x;
+        vertices[(i*9)+1+ 3*outputTriangles.size()] = outputTriangles[3*i].y;
+        vertices[(i*9)+2+ 3*outputTriangles.size()] = -100;
+
+        vertices[(i*9)+3+ 3*outputTriangles.size()] = outputTriangles[3*i+1].x;
+        vertices[(i*9)+4+ 3*outputTriangles.size()] = outputTriangles[3*i+1].y;
+        vertices[(i*9)+5+ 3*outputTriangles.size()] = -100;
+
+        vertices[(i*9)+6+ 3*outputTriangles.size()] = outputTriangles[3*i+2].x;
+        vertices[(i*9)+7+ 3*outputTriangles.size()] = outputTriangles[3*i+2].y;
+        vertices[(i*9)+8+ 3*outputTriangles.size()] = -100;
+
+
+       minX = std::min(std::min(std::min(outputTriangles[3*i].x,outputTriangles[3*i + 1].x) ,outputTriangles[3*i + 2].x),minX);
+       minY = std::min(std::min(std::min(outputTriangles[3*i].y,outputTriangles[3*i + 1].y) ,outputTriangles[3*i + 2].y),minY);
+       maxX = std::max(std::max(std::max(outputTriangles[3*i].x,outputTriangles[3*i + 1].x) ,outputTriangles[3*i + 2].x),maxX);
+       maxY = std::max(std::max(std::max(outputTriangles[3*i].y,outputTriangles[3*i + 1].y) ,outputTriangles[3*i + 2].y),maxY);
+
+
+    }
+
+
+    for(int i=0;i<outputTriangles.size()/3;i++)
+    {
+        vertices[(i*9)+0 + 36] =  -100;
+        vertices[(i*9)+1 + 36] = outputTriangles[3*i].y;
+        vertices[(i*9)+2 + 36] = outputTriangles[3*i].x;
+
+        vertices[(i*9)+3 + 36] = -100;
+        vertices[(i*9)+4 + 36] = outputTriangles[3*i+1].y;
+        vertices[(i*9)+5 + 36] = outputTriangles[3*i+1].x;
+
+        vertices[(i*9)+6 + 36] = -100;
+        vertices[(i*9)+7 + 36] = outputTriangles[3*i+2].y;
+        vertices[(i*9)+8 + 36] = outputTriangles[3*i+2].x;
+
+
+       minX = std::min(std::min(std::min(outputTriangles[3*i].x,outputTriangles[3*i + 1].x) ,outputTriangles[3*i + 2].x),minX);
+       minY = std::min(std::min(std::min(outputTriangles[3*i].y,outputTriangles[3*i + 1].y) ,outputTriangles[3*i + 2].y),minY);
+       maxX = std::max(std::max(std::max(outputTriangles[3*i].x,outputTriangles[3*i + 1].x) ,outputTriangles[3*i + 2].x),maxX);
+       maxY = std::max(std::max(std::max(outputTriangles[3*i].y,outputTriangles[3*i + 1].y) ,outputTriangles[3*i + 2].y),maxY);
+
+
+    }
+
+    for(int i=0;i<outputTriangles.size()/3;i++)
+    {
+        vertices[(i*9)+0 + 54] = 100;
+        vertices[(i*9)+1 + 54] = outputTriangles[3*i].y;
+        vertices[(i*9)+2 + 54] = outputTriangles[3*i].x;
+
+        vertices[(i*9)+3 + 54] = 100;
+        vertices[(i*9)+4 + 54] = outputTriangles[3*i+1].y;
+        vertices[(i*9)+5 + 54] = outputTriangles[3*i+1].x;
+
+        vertices[(i*9)+6 + 54] = 100;
+        vertices[(i*9)+7 + 54] = outputTriangles[3*i+2].y;
+        vertices[(i*9)+8 + 54] = outputTriangles[3*i+2].x;
+
+
+       minX = std::min(std::min(std::min(outputTriangles[3*i].x,outputTriangles[3*i + 1].x) ,outputTriangles[3*i + 2].x),minX);
+       minY = std::min(std::min(std::min(outputTriangles[3*i].y,outputTriangles[3*i + 1].y) ,outputTriangles[3*i + 2].y),minY);
+       maxX = std::max(std::max(std::max(outputTriangles[3*i].x,outputTriangles[3*i + 1].x) ,outputTriangles[3*i + 2].x),maxX);
+       maxY = std::max(std::max(std::max(outputTriangles[3*i].y,outputTriangles[3*i + 1].y) ,outputTriangles[3*i + 2].y),maxY);
+
+
+    }
+
+
+
+    for(int i=0;i<outputTriangles.size()/3;i++)
+    {
+        vertices[(i*9)+0 + 72] =  outputTriangles[3*i].y;
+        vertices[(i*9)+1 + 72] = -100;
+        vertices[(i*9)+2 + 72] = outputTriangles[3*i].x;
+
+        vertices[(i*9)+3 + 72] =outputTriangles[3*i+1].y;
+        vertices[(i*9)+4 + 72] =  -100;
+        vertices[(i*9)+5 + 72] = outputTriangles[3*i+1].x;
+
+        vertices[(i*9)+6 + 72] =  outputTriangles[3*i+2].y;
+        vertices[(i*9)+7 + 72] =  -100;
+        vertices[(i*9)+8 + 72] = outputTriangles[3*i+2].x;
+
+
+       minX = std::min(std::min(std::min(outputTriangles[3*i].x,outputTriangles[3*i + 1].x) ,outputTriangles[3*i + 2].x),minX);
+       minY = std::min(std::min(std::min(outputTriangles[3*i].y,outputTriangles[3*i + 1].y) ,outputTriangles[3*i + 2].y),minY);
+       maxX = std::max(std::max(std::max(outputTriangles[3*i].x,outputTriangles[3*i + 1].x) ,outputTriangles[3*i + 2].x),maxX);
+       maxY = std::max(std::max(std::max(outputTriangles[3*i].y,outputTriangles[3*i + 1].y) ,outputTriangles[3*i + 2].y),maxY);
+
+
+    }
+
+    for(int i=0;i<outputTriangles.size()/3;i++)
+    {
+        vertices[(i*9)+0 + 90] = outputTriangles[3*i].y;
+        vertices[(i*9)+1 + 90] = 100;
+        vertices[(i*9)+2 + 90] = outputTriangles[3*i].x;
+
+        vertices[(i*9)+3 + 90] = outputTriangles[3*i+1].y;
+        vertices[(i*9)+4 + 90] = 100;
+        vertices[(i*9)+5 + 90] = outputTriangles[3*i+1].x;
+
+        vertices[(i*9)+6 + 90] = outputTriangles[3*i+2].y;
+        vertices[(i*9)+7 + 90] = 100;
+        vertices[(i*9)+8 + 90] = outputTriangles[3*i+2].x;
+
+
+       minX = std::min(std::min(std::min(outputTriangles[3*i].x,outputTriangles[3*i + 1].x) ,outputTriangles[3*i + 2].x),minX);
+       minY = std::min(std::min(std::min(outputTriangles[3*i].y,outputTriangles[3*i + 1].y) ,outputTriangles[3*i + 2].y),minY);
+       maxX = std::max(std::max(std::max(outputTriangles[3*i].x,outputTriangles[3*i + 1].x) ,outputTriangles[3*i + 2].x),maxX);
+       maxY = std::max(std::max(std::max(outputTriangles[3*i].y,outputTriangles[3*i + 1].y) ,outputTriangles[3*i + 2].y),maxY);
+
+
+    }
+
 
 
 
@@ -302,26 +447,190 @@ void LogoRenderer::ObjeOlustur(vector<Point> outputTriangles)
 
     for(int i=0;i<outputTriangles.size()/3;i++)
     {
-        normals[(i*9)+0] = 1;
-        normals[(i*9)+1] = 0;
-        normals[(i*9)+2] = 0;
+        textcoord[(i*6)+0+ 2*outputTriangles.size()] = (outputTriangles[3*i].x - minX) / (maxX -minX);
+        textcoord[(i*6)+1+ 2*outputTriangles.size()] = (outputTriangles[3*i].y - minY) / (maxY -minY);
 
-        normals[(i*9)+3] = 1;
-        normals[(i*9)+4] = 0;
-        normals[(i*9)+5] = 0;
+        textcoord[(i*6)+2+ 2*outputTriangles.size()] = (outputTriangles[3*i+1].x- minX) / (maxX -minX);
+        textcoord[(i*6)+3+ 2*outputTriangles.size()] = (outputTriangles[3*i+1].y- minY) / (maxY -minY);
 
-        normals[(i*9)+6] = 1;
-        normals[(i*9)+7] = 0;
-        normals[(i*9)+8] = 0;
+        textcoord[(i*6)+4+ 2*outputTriangles.size()] = (outputTriangles[3*i+2].x- minX) / (maxX -minX);
+        textcoord[(i*6)+5+ 2*outputTriangles.size()] = (outputTriangles[3*i+2].y- minY) / (maxY -minY);
+
+    }
+
+    for(int i=0;i<outputTriangles.size()/3;i++)
+    {
+        textcoord[(i*6)+0+ 24] = (outputTriangles[3*i].x - minX) / (maxX -minX);
+        textcoord[(i*6)+1+ 24] = (outputTriangles[3*i].y - minY) / (maxY -minY);
+
+        textcoord[(i*6)+2+ 24] = (outputTriangles[3*i+1].x- minX) / (maxX -minX);
+        textcoord[(i*6)+3+ 24] = (outputTriangles[3*i+1].y- minY) / (maxY -minY);
+
+        textcoord[(i*6)+4+ 24] = (outputTriangles[3*i+2].x- minX) / (maxX -minX);
+        textcoord[(i*6)+5+ 24] = (outputTriangles[3*i+2].y- minY) / (maxY -minY);
+
+
+
+    }
+
+    for(int i=0;i<outputTriangles.size()/3;i++)
+    {
+        textcoord[(i*6)+0+ 36] = (outputTriangles[3*i].x - minX) / (maxX -minX);
+        textcoord[(i*6)+1+ 36] = (outputTriangles[3*i].y - minY) / (maxY -minY);
+
+        textcoord[(i*6)+2+ 36] = (outputTriangles[3*i+1].x- minX) / (maxX -minX);
+        textcoord[(i*6)+3+ 36] = (outputTriangles[3*i+1].y- minY) / (maxY -minY);
+
+        textcoord[(i*6)+4+ 36] = (outputTriangles[3*i+2].x- minX) / (maxX -minX);
+        textcoord[(i*6)+5+ 36] = (outputTriangles[3*i+2].y- minY) / (maxY -minY);
+
+
+
+    }
+
+    for(int i=0;i<outputTriangles.size()/3;i++)
+    {
+        textcoord[(i*6)+0+ 48] = (outputTriangles[3*i].x - minX) / (maxX -minX);
+        textcoord[(i*6)+1+ 48] = (outputTriangles[3*i].y - minY) / (maxY -minY);
+
+        textcoord[(i*6)+2+ 48] = (outputTriangles[3*i+1].x- minX) / (maxX -minX);
+        textcoord[(i*6)+3+ 48] = (outputTriangles[3*i+1].y- minY) / (maxY -minY);
+
+        textcoord[(i*6)+4+ 48] = (outputTriangles[3*i+2].x- minX) / (maxX -minX);
+        textcoord[(i*6)+5+ 48] = (outputTriangles[3*i+2].y- minY) / (maxY -minY);
+
+
+
+    }
+
+    for(int i=0;i<outputTriangles.size()/3;i++)
+    {
+        textcoord[(i*6)+0+ 60] = (outputTriangles[3*i].x - minX) / (maxX -minX);
+        textcoord[(i*6)+1+ 60] = (outputTriangles[3*i].y - minY) / (maxY -minY);
+
+        textcoord[(i*6)+2+ 60] = (outputTriangles[3*i+1].x- minX) / (maxX -minX);
+        textcoord[(i*6)+3+ 60] = (outputTriangles[3*i+1].y- minY) / (maxY -minY);
+
+        textcoord[(i*6)+4+ 60] = (outputTriangles[3*i+2].x- minX) / (maxX -minX);
+        textcoord[(i*6)+5+ 60] = (outputTriangles[3*i+2].y- minY) / (maxY -minY);
+
+
+
+    }
+
+
+    for(int i=0;i<outputTriangles.size()/3;i++)
+    {
+        normals[(i*9)+0] = -0;
+        normals[(i*9)+1] = -0;
+        normals[(i*9)+2] = 1;
+
+        normals[(i*9)+3] = -0;
+        normals[(i*9)+4] = -0;
+        normals[(i*9)+5] = 1;
+
+        normals[(i*9)+6] = -0;
+        normals[(i*9)+7] = -0;
+        normals[(i*9)+8] = 1;
+
+    }
+
+    for(int i=0;i<outputTriangles.size()/3;i++)
+    {
+        normals[(i*9)+0+ 3*outputTriangles.size()] = 0;
+        normals[(i*9)+1+ 3*outputTriangles.size()] = 0;
+        normals[(i*9)+2+ 3*outputTriangles.size()] = -1;
+
+        normals[(i*9)+3+ 3*outputTriangles.size()] = 0;
+        normals[(i*9)+4+ 3*outputTriangles.size()] = 0;
+        normals[(i*9)+5+ 3*outputTriangles.size()] = -1;
+
+        normals[(i*9)+6+ 3*outputTriangles.size()] = 0;
+        normals[(i*9)+7+ 3*outputTriangles.size()] = 0;
+        normals[(i*9)+8+ 3*outputTriangles.size()] = -1;
+
+
+    }
+
+    for(int i=0;i<outputTriangles.size()/3;i++)
+    {
+        normals[(i*9)+0+ 36] = -1;
+        normals[(i*9)+1+ 36] = 0;
+        normals[(i*9)+2+ 36] = 0;
+
+        normals[(i*9)+3+ 36] = -1;
+        normals[(i*9)+4+ 36] = 0;
+        normals[(i*9)+5+ 36] = 0;
+
+        normals[(i*9)+6+ 36] = -1;
+        normals[(i*9)+7+ 36] = 0;
+        normals[(i*9)+8+ 36] = 0;
+
+
+    }
+
+    for(int i=0;i<outputTriangles.size()/3;i++)
+    {
+        normals[(i*9)+0+ 54] = 1;
+        normals[(i*9)+1+ 54] = 0;
+        normals[(i*9)+2+ 54] = 0;
+
+        normals[(i*9)+3+ 54] = 1;
+        normals[(i*9)+4+ 54] = 0;
+        normals[(i*9)+5+ 54] = 0;
+
+        normals[(i*9)+6+ 54] = 1;
+        normals[(i*9)+7+ 54] = 0;
+        normals[(i*9)+8+ 54] = 0;
+
+
+    }
+
+    for(int i=0;i<outputTriangles.size()/3;i++)
+    {
+        normals[(i*9)+0+ 72] = 0;
+        normals[(i*9)+1+ 72] = 1;
+        normals[(i*9)+2+ 72] = 0;
+
+        normals[(i*9)+3+ 72] = 0;
+        normals[(i*9)+4+ 72] = 1;
+        normals[(i*9)+5+ 72] = 0;
+
+        normals[(i*9)+6+ 72] = 0;
+        normals[(i*9)+7+ 72] = 1;
+        normals[(i*9)+8+ 72] = 0;
+
+
+    }
+
+    for(int i=0;i<outputTriangles.size()/3;i++)
+    {
+        normals[(i*9)+0+ 90] = 0;
+        normals[(i*9)+1+ 90] = -1;
+        normals[(i*9)+2+ 90] = 0;
+
+        normals[(i*9)+3+ 90] = 0;
+        normals[(i*9)+4+ 90] = -1;
+        normals[(i*9)+5+ 90] = 0;
+
+        normals[(i*9)+6+ 90] = 0;
+        normals[(i*9)+7+ 90] = -1;
+        normals[(i*9)+8+ 90] = 0;
+
 
     }
 
 
 
 
-    verticesSize = outputTriangles.size();
+    verticesSize = outputTriangles.size()*6;
+
+
+
 
 }
+
+
 
 void LogoRenderer::CizimResminiHafizayaAl()
 {
@@ -330,7 +639,6 @@ void LogoRenderer::CizimResminiHafizayaAl()
 
     glEnable(GL_TEXTURE_2D);
 
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
 
 
@@ -427,7 +735,7 @@ void LogoRenderer::onSurukleniyor(int x, int y)
         if (!CizimiOynat)
         {
             donmeAcisiY = (x - hareketeBaslamaNoktasi.x) + donmeAcisiY;
-            donmeAcisiX = (y - hareketeBaslamaNoktasi.y) + donmeAcisiX;
+            donmeAcisiX = -(y - hareketeBaslamaNoktasi.y) + donmeAcisiX;
 
         }
         else
@@ -476,52 +784,21 @@ void LogoRenderer::Isiklandirma(float isikPozisyonu[])
 
 
 
-    GLfloat lmKa[] =  { 0.1f, 0.1f, 0.1f, 1.0f };
 
 
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lmKa);
-    glLightModelf(GL_LIGHT_MODEL_LOCAL_VIEWER, 1.0f);
-    glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 0.0f);
-
-    // -------------------------------------------
-    // Spotlight Attenuation
+    GLfloat lmKa[] =  { 0.51f, 0.51f, 0.1f, 1.0f };
 
 
-    GLfloat spot_direction[] = { signbit(isikPozisyonu[0])* -1, signbit(isikPozisyonu[1]) * -1, signbit(isikPozisyonu[2]) * 1 };
-    GLfloat spot_exponent = 30;
-    GLfloat spot_cutoff = 180;
+    //glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lmKa);
+    glLightModelf(GL_LIGHT_MODEL_LOCAL_VIEWER, 0.10f);
+    glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 1.0f);
 
-    glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, spot_direction);
-    glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, spot_exponent);
-    glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, spot_cutoff);
-
-    float Kc = 1.0f;
-    float Kl = 0.0f;
-    float Kq = 0.0f;
-
-    glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, Kc);
-    glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, Kl);
-    glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, Kq);
-
-    // Işık Özellikleri
-    float ambientProperties2[4]  = { 0.5f, 0.5f, 0.5f, 1.0f };
-    float diffuseProperties2[4]  = { 0.8f, 0.8f, 0.8f, 1.0f };
-    float specularProperties2[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-
-
-
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseProperties2);
-    glLightfv(GL_LIGHT0, GL_POSITION, isikPozisyonu);
-    glLightfv(GL_LIGHT0, GL_AMBIENT, ambientProperties2);
-    glLightfv(GL_LIGHT0, GL_SPECULAR, specularProperties2);
-
-    // Malzeme Özellikleri
-    float MatAmbient[4] = { 0.20f, 0.20f, 0.20f, 1.0f };
-    float MatDiffuse[4]  = { 0.69f, 0.8f, 0.69f, 1.0f };
+    float MatAmbient[4] = { 0.70f, 0.70f, 0.40f, 1.0f };
+    float MatDiffuse[4]  = { 0.69f, 0.1f, 0.69f, 1.0f };
     float MatSpecular[4]  = { .94f, .94f, .94f, 1.0f };
 
-    float MatShininess[1]  = { 10 };
-    float MatEmission[4]  = { 0.05f, 0.05f, 0.05f, 1.0f };
+    float MatShininess[1]  = {105 };
+    float MatEmission[4]  = { 0.18f, 0.18f, 0.18f, 1.0f };
 
     glMaterialfv(GL_FRONT, GL_AMBIENT, MatAmbient);
     glMaterialfv(GL_FRONT, GL_DIFFUSE, MatDiffuse);
@@ -530,15 +807,14 @@ void LogoRenderer::Isiklandirma(float isikPozisyonu[])
     glMaterialfv(GL_FRONT, GL_EMISSION, MatEmission);
 
 
-
-    GLfloat diffuseMaterial[4] = { 0.65, 0.65, 0.65, 1.0 };
+    GLfloat diffuseMaterial[4] = { 0.75, 0.75, 0.75, 1.0 };
 
     GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-    GLfloat light_position[] = {0.5, 1.0, 1.0, 0.0 };
+    GLfloat light_position[] = {-1.0, -1.0, -1.0, 0.0 };
     glShadeModel (GL_SMOOTH);
     glEnable(GL_DEPTH_TEST);
-    glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuseMaterial);
-    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuseMaterial);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular);
     glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 
 
@@ -548,5 +824,51 @@ void LogoRenderer::Isiklandirma(float isikPozisyonu[])
 
 }
 
+void LogoRenderer::Isiklandirma2(float isikPozisyonu[])
+{
+    glEnable(GL_LIGHT1);
 
+
+    glEnable(GL_COLOR_MATERIAL);
+    glEnable(GL_LIGHTING);
+    glEnable(GL_NORMALIZE);
+
+    //Işık için bir slot aç
+
+
+
+
+
+    GLfloat lmKa[] =  { 0.51f, 0.51f, 0.1f, 1.0f };
+
+
+    //glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lmKa);
+    glLightModelf(GL_LIGHT_MODEL_LOCAL_VIEWER, 0.50f);
+    glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 1.0f);
+
+    float MatAmbient[4] = { 0.20f, 0.20f, 0.20f, 1.0f };
+    float MatDiffuse[4]  = { 0.69f, 0.8f, 0.69f, 1.0f };
+    float MatSpecular[4]  = { .94f, .94f, .94f, 1.0f };
+
+    float MatShininess[1]  = { 50 };
+    float MatEmission[4]  = { 0.35f, 0.35f, 0.35f, 1.0f };
+
+    glMaterialfv(GL_BACK, GL_AMBIENT, MatAmbient);
+    glMaterialfv(GL_BACK, GL_DIFFUSE, MatDiffuse);
+    glMaterialfv(GL_BACK, GL_SPECULAR, MatSpecular);
+    glMaterialfv(GL_BACK, GL_SHININESS, MatShininess);
+    glMaterialfv(GL_BACK, GL_EMISSION, MatEmission);
+
+
+    GLfloat light_position[] = {1.0, 1.0, -1.0, 0.0 };
+
+    glLightfv(GL_LIGHT1, GL_POSITION, light_position);
+
+
+    glColorMaterial(GL_BACK, GL_SPECULAR);
+
+
+
+
+}
 

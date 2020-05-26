@@ -55,12 +55,12 @@ int main(int argc, char **argv)
 {
     QGuiApplication app(argc, argv);
 
-    //qmlRegisterType<FboInSGRenderer>("SceneGraphRendering", 1, 0, "Renderer");
-    //LogoRenderer msg;
+    qmlRegisterType<FboInSGRenderer>("SceneGraphRendering", 1, 0, "Renderer");
+    LogoRenderer msg;
 
 
-    qmlRegisterType<GlKaynak>("SceneGraphRendering", 1, 0, "Renderer");
-    CizimIslemi msg;
+    //qmlRegisterType<GlKaynak>("SceneGraphRendering", 1, 0, "Renderer");
+    //CizimIslemi msg;
 
 
 
@@ -74,7 +74,7 @@ int main(int argc, char **argv)
     view.engine()->rootContext()->setContextProperty("msg", &msg);
 
 
-    view.setSource(QUrl("qrc:/frmUCizim.qml"));
+    view.setSource(QUrl("qrc:/frmCizim.qml"));
 
     QObject *item = view.rootObject();
 
@@ -82,11 +82,11 @@ int main(int argc, char **argv)
     QObject::connect(item, SIGNAL(onBasildi(int,int))     ,&msg, SLOT(onBasildi(int,int)));
     QObject::connect(item, SIGNAL(onBirakildi(int,int))   ,&msg, SLOT(onBirakildi(int,int)));
     QObject::connect(item, SIGNAL(onSurukleniyor(int,int)),&msg, SLOT(onSurukleniyor(int,int)));
-    //QObject::connect(item, SIGNAL(onOynatBasildi(int)),    &msg, SLOT(onOynatBasildi(int)));
+
     QObject::connect(item, SIGNAL(onMercekDegisti(double)),&msg, SLOT(onMercekDegisti(double)));
 
-    QObject::connect(item, SIGNAL(onSileBasildi(int)),    &msg, SLOT(onSileBasildi(int)));
-
+    //QObject::connect(item, SIGNAL(onSileBasildi(int)),    &msg, SLOT(onSileBasildi(int)));
+    QObject::connect(item, SIGNAL(onOynatBasildi(int)),    &msg, SLOT(onOynatBasildi(int)));
 
 
 
